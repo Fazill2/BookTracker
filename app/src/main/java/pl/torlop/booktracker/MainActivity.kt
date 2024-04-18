@@ -1,8 +1,6 @@
 package pl.torlop.booktracker
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Menu
@@ -10,9 +8,6 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.AccountBox
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -25,16 +20,18 @@ import kotlinx.coroutines.launch
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import androidx.room.Room
 import pl.torlop.booktracker.ui.theme.BookTrackerTheme
 
 class MainActivity : ComponentActivity() {
@@ -58,17 +55,20 @@ class MainActivity : ComponentActivity() {
             unselectedIcon = Icons.Outlined.Settings
         ),
         NavigationItem(
-            route = "account",
+            route = MainNavOption.AccountsScreen.name,
             title = "Account",
             selectedIcon = Icons.Filled.AccountBox,
             unselectedIcon = Icons.Outlined.AccountBox
         )
     )
 
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java, "database-name"
+        ).build()
         setContent {
             BookTrackerTheme {
                 // A surface container using the 'background' color from the theme
@@ -76,19 +76,20 @@ class MainActivity : ComponentActivity() {
                     val drawerState = rememberDrawerState(DrawerValue.Closed)
                     val navController = rememberNavController()
                     val scope = rememberCoroutineScope()
-                    val selectedItemIndex = rememberSaveable() { mutableStateOf(0) }
+                    val selectedItemIndex = rememberSaveable() { mutableIntStateOf(0) }
                     ModalNavigationDrawer(
                         drawerState = drawerState,
                         drawerContent = {
                             ModalDrawerSheet {
+                                Spacer(modifier = Modifier.height(16.dp))
                                 Column {
                                     items.forEachIndexed() { index, item  ->
                                         NavigationDrawerItem(
                                             label = { Text(item.title) },
-                                            selected = index == selectedItemIndex.value,
+                                            selected = index == selectedItemIndex.intValue,
                                             icon = {
                                                 Icon(
-                                                    imageVector = if (index == selectedItemIndex.value) {
+                                                    imageVector = if (index == selectedItemIndex.intValue) {
                                                         item.selectedIcon
                                                     } else {
                                                         item.unselectedIcon
@@ -102,7 +103,7 @@ class MainActivity : ComponentActivity() {
                                                 }
                                             },
                                             onClick = {
-                                                selectedItemIndex.value = index
+                                                selectedItemIndex.intValue = index
                                                 scope.launch {
                                                     navController.navigate(item.route)
                                                     drawerState.close()
@@ -133,13 +134,15 @@ class MainActivity : ComponentActivity() {
                                         }
                                     }
                                 )
-                            }
+                            },
                         ) {
+                            padding ->
                             NavHost(
                                 navController,
-                                startDestination = NavRoutes.MainRoute.name
+                                startDestination = NavRoutes.MainRoute.name,
+                                modifier = Modifier.padding(padding).fillMaxSize()
                             ) {
-                                mainGraph(drawerState)
+                                mainGraph(drawerState, db)
                             }
                         }
                     }
@@ -158,15 +161,17 @@ data class NavigationItem(
     val badgeCount: Int? = null
 )
 
-fun NavGraphBuilder.mainGraph(drawerState: DrawerState) {
+fun NavGraphBuilder.mainGraph(drawerState: DrawerState, db: AppDatabase? = null) {
     navigation(startDestination = MainNavOption.HomeScreen.name, route = NavRoutes.MainRoute.name) {
         composable(MainNavOption.HomeScreen.name){
-            HomeScreen(drawerState)
+            HomeScreen(drawerState, db)
         }
         composable(MainNavOption.BooksScreen.name){
-            BookListView(drawerState)
+            BookListView(drawerState, db)
         }
-
+        composable(MainNavOption.AccountsScreen.name){
+            AccountScreen(drawerState, db)
+        }
     }
 }
 
@@ -174,7 +179,7 @@ fun NavGraphBuilder.mainGraph(drawerState: DrawerState) {
 enum class MainNavOption {
     HomeScreen,
     BooksScreen,
-    AboutScreen
+    AccountsScreen,
 }
 
 enum class NavRoutes {
@@ -185,7 +190,7 @@ enum class NavRoutes {
 @Composable
 fun DefaultPreview() {
     BookTrackerTheme {
-        HomeScreen(drawerState = rememberDrawerState(DrawerValue.Closed))
+        HomeScreen(drawerState = rememberDrawerState(DrawerValue.Closed), db = null)
     }
 }
 
