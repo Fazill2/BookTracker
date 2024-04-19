@@ -20,55 +20,52 @@ import kotlinx.coroutines.launch
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navigation
 import androidx.room.Room
+import pl.torlop.booktracker.navigation.MainNavOption
+import pl.torlop.booktracker.navigation.NavRoutes
+import pl.torlop.booktracker.navigation.NavigationItem
+import pl.torlop.booktracker.navigation.NavigationRoutes.Companion.floatingActionButtons
+import pl.torlop.booktracker.navigation.NavigationRoutes.Companion.mainNavigationItems
 import pl.torlop.booktracker.ui.theme.BookTrackerTheme
+import pl.torlop.booktracker.viewmodel.BookViewModel
 
 class MainActivity : ComponentActivity() {
-    val items = listOf(
-        NavigationItem(
-            route = MainNavOption.HomeScreen.name,
-            title = "Welcome",
-            selectedIcon = Icons.Filled.Menu,
-            unselectedIcon = Icons.Filled.Menu
-        ),
-        NavigationItem(
-            route = MainNavOption.BooksScreen.name,
-            title = "Books",
-            selectedIcon = Icons.Filled.Menu,
-            unselectedIcon = Icons.Filled.Menu
-        ),
-        NavigationItem(
-            route = "settings",
-            title = "Settings",
-            selectedIcon = Icons.Filled.Settings,
-            unselectedIcon = Icons.Outlined.Settings
-        ),
-        NavigationItem(
-            route = MainNavOption.AccountsScreen.name,
-            title = "Account",
-            selectedIcon = Icons.Filled.AccountBox,
-            unselectedIcon = Icons.Outlined.AccountBox
-        )
+    private val db by lazy {
+        Room.databaseBuilder(
+            context = applicationContext,
+            klass = AppDatabase::class.java,
+            name = "database.db"
+        ).build()
+    }
+    private val viewModel by viewModels<BookViewModel>(
+        factoryProducer = {
+            object : ViewModelProvider.Factory {
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    return BookViewModel(db.bookDao()) as T
+                }
+            }
+        }
     )
+
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java, "database-name"
-        ).build()
         setContent {
             BookTrackerTheme {
                 // A surface container using the 'background' color from the theme
@@ -77,13 +74,14 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     val scope = rememberCoroutineScope()
                     val selectedItemIndex = rememberSaveable() { mutableIntStateOf(0) }
+                    val navBackStackEntry by navController.currentBackStackEntryAsState()
                     ModalNavigationDrawer(
                         drawerState = drawerState,
                         drawerContent = {
                             ModalDrawerSheet {
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Column {
-                                    items.forEachIndexed() { index, item  ->
+                                    mainNavigationItems.forEachIndexed() { index, item  ->
                                         NavigationDrawerItem(
                                             label = { Text(item.title) },
                                             selected = index == selectedItemIndex.intValue,
@@ -132,9 +130,21 @@ class MainActivity : ComponentActivity() {
                                         }) {
                                             Icon(Icons.Filled.Menu, contentDescription = "Menu")
                                         }
-                                    }
+                                    },
                                 )
                             },
+                            floatingActionButtonPosition = FabPosition.End,
+                            floatingActionButton = {
+                                if (floatingActionButtons.containsKey(navBackStackEntry?.destination?.route)) {
+                                    val floatingActionButtonData = floatingActionButtons[navBackStackEntry?.destination?.route]!!
+                                    FloatingActionScaffoldButton(
+                                        navController = navController,
+                                        route = floatingActionButtonData.route,
+                                        icon = floatingActionButtonData.icon,
+                                        contentDescription = floatingActionButtonData.contentDescription
+                                    )
+                                }
+                            }
                         ) {
                             padding ->
                             NavHost(
@@ -142,58 +152,52 @@ class MainActivity : ComponentActivity() {
                                 startDestination = NavRoutes.MainRoute.name,
                                 modifier = Modifier.padding(padding).fillMaxSize()
                             ) {
-                                mainGraph(drawerState, db)
+                                mainGraph(drawerState, viewModel, navController)
                             }
                         }
                     }
 
                 }
+
             }
         }
     }
 }
 
-data class NavigationItem(
-    val route: String,
-    val title: String,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
-    val badgeCount: Int? = null
-)
-
-fun NavGraphBuilder.mainGraph(drawerState: DrawerState, db: AppDatabase? = null) {
+fun NavGraphBuilder.mainGraph(drawerState: DrawerState, viewModel: BookViewModel, navController: NavController) {
     navigation(startDestination = MainNavOption.HomeScreen.name, route = NavRoutes.MainRoute.name) {
         composable(MainNavOption.HomeScreen.name){
-            HomeScreen(drawerState, db)
+            HomeScreen(drawerState, viewModel, navController)
         }
         composable(MainNavOption.BooksScreen.name){
-            BookListView(drawerState, db)
+            BookListView(drawerState, viewModel, navController)
         }
         composable(MainNavOption.AccountsScreen.name){
-            AccountScreen(drawerState, db)
+            AccountScreen(drawerState, viewModel, navController)
+        }
+        composable(MainNavOption.AddBookScreen.name){
+            AddBookView(drawerState, viewModel, navController)
         }
     }
 }
 
-// available routes for the main route
-enum class MainNavOption {
-    HomeScreen,
-    BooksScreen,
-    AccountsScreen,
-}
-
-enum class NavRoutes {
-    MainRoute,
-}
-
-@Preview(showBackground = true)
 @Composable
-fun DefaultPreview() {
-    BookTrackerTheme {
-        HomeScreen(drawerState = rememberDrawerState(DrawerValue.Closed), db = null)
+fun FloatingActionScaffoldButton(
+    navController: NavController,
+    route: String,
+    icon: ImageVector,
+    contentDescription: String
+) {
+    FloatingActionButton(
+        onClick = {
+            navController.navigate(route)
+        },
+        modifier = Modifier
+            .padding(16.dp)
+
+    ) {
+        Icon(icon, contentDescription)
     }
 }
-
-
 
 

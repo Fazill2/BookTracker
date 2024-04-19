@@ -5,22 +5,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.runtime.Composable
 import androidx.room.Room
 import pl.torlop.booktracker.entity.Book
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import kotlinx.coroutines.launch
+import pl.torlop.booktracker.viewmodel.BookViewModel
 
 @Composable
-fun BookListView(drawerState: DrawerState, db: AppDatabase?) {
+fun BookListView(drawerState: DrawerState, viewModel: BookViewModel,  navController: NavController) {
     val scope = rememberCoroutineScope()
     val books = listOf(
         Book(
@@ -42,25 +41,14 @@ fun BookListView(drawerState: DrawerState, db: AppDatabase?) {
             description = "Nineteen Eighty-Four: A Novel, often referred to as 1984, is a dystopian social science fiction novel by the English novelist George Orwell. It was published on 8 June 1949 by Secker & Warburg as Orwell's ninth and final book completed in his lifetime. Thematically, Nineteen Eighty-Four centres on the consequences of totalitarianism, mass surveillance, and repressive regimentation of persons and behaviours within society.",
             coverUrl = "https://upload.wikimedia.org/wikipedia/en/c/c3/1984first.jpg")
     )
-    val bookState = rememberLazyListState()
-    val bookListState = remember {
-        mutableStateOf(books)
-    }
-//    scope.launch {
-//
-//    }
-//    val bookDao = db?.bookDao()!!
-//    val books = bookDao.selectAll()
-//    val booksState = rememberLazyListState(
-//
-//    )
+
+    val bookList = viewModel.getAllBooks().collectAsState(initial = emptyList())
 
     LazyColumn(
-        state = bookState,
         modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
         items(
-            items = bookListState.value,
+            items = bookList.value,
             key = { book ->
                 // Return a stable + unique key for the item
                 book.isbn

@@ -1,15 +1,16 @@
 package pl.torlop.booktracker.dao
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 import pl.torlop.booktracker.entity.Book
 
 @Dao
 interface BookDao {
     @Query("SELECT * FROM book")
-    fun selectAll(): List<Book>
+    fun getAllBooksFlow(): Flow<List<Book>>
+
+    @Query("SELECT * FROM book")
+    fun getAllBooks(): List<Book>
 
     @Query("SELECT * FROM book WHERE isbn = (:isbn)")
     fun selectBookById(isbn: String): Book
@@ -24,11 +25,14 @@ interface BookDao {
     fun selectBookByGenre(genre: String): List<Book>
 
     @Insert
-    fun insertAll(vararg books: Book)
+    suspend fun insertAll(vararg books: Book)
 
     @Query("DELETE FROM book WHERE isbn = (:isbn)")
     fun deleteBook(isbn: String)
 
     @Delete
     fun delete(book: Book)
+
+    @Upsert
+    fun upsert(book: Book)
 }
