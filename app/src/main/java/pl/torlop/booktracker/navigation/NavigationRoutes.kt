@@ -49,6 +49,7 @@ enum class MainNavOption {
     BooksScreen,
     AccountsScreen,
     AddBookScreen,
+    BookDetailsScreen
 }
 
 enum class NavRoutes {

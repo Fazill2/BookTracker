@@ -15,7 +15,7 @@ class BookViewModel(private val dao: BookDao) : ViewModel() {
         return dao.getAllBooksFlow()
     }
 
-    fun selectBookById(isbn: String): Book {
+    fun selectBookById(isbn: String): Flow<Book> {
         return dao.selectBookById(isbn)
     }
 

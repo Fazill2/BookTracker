@@ -11,7 +11,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 
@@ -29,12 +28,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
+import androidx.navigation.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.navigation
 import androidx.room.Room
 import pl.torlop.booktracker.navigation.MainNavOption
 import pl.torlop.booktracker.navigation.NavRoutes
@@ -177,6 +174,13 @@ fun NavGraphBuilder.mainGraph(drawerState: DrawerState, viewModel: BookViewModel
         }
         composable(MainNavOption.AddBookScreen.name){
             AddBookView(drawerState, viewModel, navController)
+        }
+        composable(
+            route ="bookDetails/{isbn}",
+            arguments = listOf(navArgument("isbn") { type = NavType.StringType })
+            ){
+            entry ->
+            BookDetailsView(drawerState, viewModel, navController, entry.arguments?.getString("isbn")!!)
         }
     }
 }

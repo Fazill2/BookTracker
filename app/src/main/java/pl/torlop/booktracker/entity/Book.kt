@@ -15,3 +15,7 @@ data class Book(
     @ColumnInfo(name="description") val description: String,
     @ColumnInfo(name="coverUrl") val coverUrl: String
 )
+
+fun getEmptyBook(): Book {
+    return Book("", "", "", 0, "", 0, "", "")
+}

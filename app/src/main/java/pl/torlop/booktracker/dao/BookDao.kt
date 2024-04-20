@@ -13,7 +13,7 @@ interface BookDao {
     fun getAllBooks(): List<Book>
 
     @Query("SELECT * FROM book WHERE isbn = (:isbn)")
-    fun selectBookById(isbn: String): Book
+    fun selectBookById(isbn: String): Flow<Book>
 
     @Query("SELECT * FROM book WHERE title = (:title)")
     fun selectBookByTitle(title: String): List<Book>

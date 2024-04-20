@@ -1,6 +1,9 @@
 package pl.torlop.booktracker
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Text
@@ -27,10 +30,13 @@ fun AddBookView(drawerState: DrawerState, viewModel: BookViewModel,  navControll
     var genre by rememberSaveable { mutableStateOf("") }
     var rating by rememberSaveable { mutableStateOf("") }
     var description by rememberSaveable { mutableStateOf("") }
+    var coverUrl by rememberSaveable { mutableStateOf("") }
 
     Column(
+
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
         TextField(
@@ -81,6 +87,13 @@ fun AddBookView(drawerState: DrawerState, viewModel: BookViewModel,  navControll
             label = { Text("Description") },
             modifier = Modifier.fillMaxWidth()
         )
+        Spacer(modifier = Modifier.height(16.dp))
+        TextField(
+            value = coverUrl,
+            onValueChange = { coverUrl = it },
+            label = { Text("Cover URL") },
+            modifier = Modifier.fillMaxWidth()
+        )
         Spacer(modifier = Modifier.height(32.dp))
         Button(
             onClick = {
@@ -94,7 +107,7 @@ fun AddBookView(drawerState: DrawerState, viewModel: BookViewModel,  navControll
                     genre = genre,
                     rating = ratingInt,
                     description = description,
-                    coverUrl = ""
+                    coverUrl = coverUrl
                 )
                 viewModel.addBook(newBook)
                 navController.navigate(MainNavOption.BooksScreen.name )
