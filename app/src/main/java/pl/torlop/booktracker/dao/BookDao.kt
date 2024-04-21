@@ -9,20 +9,29 @@ interface BookDao {
     @Query("SELECT * FROM book")
     fun getAllBooksFlow(): Flow<List<Book>>
 
-    @Query("SELECT * FROM book")
-    fun getAllBooks(): List<Book>
-
     @Query("SELECT * FROM book WHERE isbn = (:isbn)")
     fun selectBookById(isbn: String): Flow<Book>
 
     @Query("SELECT * FROM book WHERE title = (:title)")
-    fun selectBookByTitle(title: String): List<Book>
+    fun selectBookByTitle(title: String): Flow<List<Book>>
 
     @Query("SELECT * FROM book WHERE author = (:author)")
-    fun selectBookByAuthor(author: String): List<Book>
+    fun selectBookByAuthor(author: String): Flow<List<Book>>
 
     @Query("SELECT * FROM book WHERE genre = (:genre)")
-    fun selectBookByGenre(genre: String): List<Book>
+    fun selectBookByGenre(genre: String): Flow<List<Book>>
+
+    @Query("SELECT * FROM book WHERE readingStatus = (:status)")
+    fun selectBookByReadingStatus(status: String): Flow<List<Book>>
+
+    @Query("SELECT * FROM book WHERE ownershipStatus = (:status)")
+    fun selectBookByOwnershipStatus(status: String): Flow<List<Book>>
+
+    @Query("SELECT * FROM book WHERE title LIKE '%' || :title || '%'")
+    fun filterBooksByTitle(title: String): Flow<List<Book>>
+
+    @Query("SELECT * FROM book WHERE author LIKE '%' || :author || '%'")
+    fun filterBooksByAuthor(author: String): Flow<List<Book>>
 
     @Insert
     suspend fun insertAll(vararg books: Book)
@@ -35,4 +44,7 @@ interface BookDao {
 
     @Upsert
     fun upsert(book: Book)
+
+    @Update
+    suspend fun update(book: Book)
 }

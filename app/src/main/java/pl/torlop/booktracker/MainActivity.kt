@@ -1,15 +1,9 @@
 package pl.torlop.booktracker
 
-import android.annotation.SuppressLint
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.AccountBox
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
@@ -21,10 +15,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.filled.Create
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -35,7 +27,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.room.Room
 import pl.torlop.booktracker.navigation.MainNavOption
 import pl.torlop.booktracker.navigation.NavRoutes
-import pl.torlop.booktracker.navigation.NavigationItem
 import pl.torlop.booktracker.navigation.NavigationRoutes.Companion.floatingActionButtons
 import pl.torlop.booktracker.navigation.NavigationRoutes.Companion.mainNavigationItems
 import pl.torlop.booktracker.ui.theme.BookTrackerTheme
@@ -47,7 +38,7 @@ class MainActivity : ComponentActivity() {
             context = applicationContext,
             klass = AppDatabase::class.java,
             name = "database.db"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
     private val viewModel by viewModels<BookViewModel>(
         factoryProducer = {

@@ -1,25 +1,31 @@
 package pl.torlop.booktracker
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import pl.torlop.booktracker.api.ApiConstants.Companion.BASE_URL
+import pl.torlop.booktracker.api.GoogleBookApiResponse
+import pl.torlop.booktracker.api.IsbnApiService
 import pl.torlop.booktracker.entity.Book
 import pl.torlop.booktracker.navigation.MainNavOption
 import pl.torlop.booktracker.viewmodel.BookViewModel
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun AddBookView(drawerState: DrawerState, viewModel: BookViewModel,  navController: NavController) {
@@ -31,6 +37,13 @@ fun AddBookView(drawerState: DrawerState, viewModel: BookViewModel,  navControll
     var rating by rememberSaveable { mutableStateOf("") }
     var description by rememberSaveable { mutableStateOf("") }
     var coverUrl by rememberSaveable { mutableStateOf("") }
+
+    val retrofit = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+    val apiService = retrofit.create(IsbnApiService::class.java)
+
 
     Column(
 
@@ -45,6 +58,34 @@ fun AddBookView(drawerState: DrawerState, viewModel: BookViewModel,  navControll
             label = { Text("ISBN") },
             modifier = Modifier.fillMaxWidth()
         )
+        Button(
+            onClick = {
+                val formattedIsbn = "isbn:" + isbn.replace(Regex("[^0-9]"), "")
+                val call = apiService.getBookByIsbnGoogleApi(formattedIsbn)
+                call.enqueue(object : Callback<GoogleBookApiResponse> {
+                    override fun onResponse(
+                        call: Call<GoogleBookApiResponse>,
+                        response: Response<GoogleBookApiResponse>
+                    ) {
+                        val bookData = response.body()
+                        if (bookData?.items != null && bookData.items.isNotEmpty()
+                            && bookData.items[0].volumeInfo != null) {
+                            title = bookData.items[0].volumeInfo?.title ?: ""
+                            author = bookData.items[0].volumeInfo?.authors?.get(0) ?: ""
+                            pages = bookData.items[0].volumeInfo?.pageCount.toString()
+                            genre = bookData.items[0].volumeInfo?.categories?.get(0) ?: ""
+                            description = bookData.items[0].volumeInfo?.description ?: ""
+                        }
+                    }
+                    override fun onFailure(call: Call<GoogleBookApiResponse>, t: Throwable) {
+                        println("Error: ${t.message}")
+                    }
+                })
+            },
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            Text("Get Book Data from isbn code")
+        }
         Spacer(modifier = Modifier.height(16.dp))
         TextField(
             value = title,
@@ -99,6 +140,10 @@ fun AddBookView(drawerState: DrawerState, viewModel: BookViewModel,  navControll
             onClick = {
                 val pagesInt = pages.toIntOrNull() ?: 0
                 val ratingInt = rating.toIntOrNull() ?: 0
+                // set dateAdded to current date in  format dd.MM.yyyy
+                val currentDateTime = LocalDateTime.now()
+                val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+                val dateAdded = currentDateTime.format(formatter)
                 val newBook = Book(
                     isbn = isbn,
                     title = title,
@@ -107,7 +152,12 @@ fun AddBookView(drawerState: DrawerState, viewModel: BookViewModel,  navControll
                     genre = genre,
                     rating = ratingInt,
                     description = description,
-                    coverUrl = coverUrl
+                    coverUrl = coverUrl,
+                    readingStatus = "",
+                    dateStarted = "",
+                    dateFinished = "",
+                    dateAdded = dateAdded,
+                    ownershipStatus = ""
                 )
                 viewModel.addBook(newBook)
                 navController.navigate(MainNavOption.BooksScreen.name )
