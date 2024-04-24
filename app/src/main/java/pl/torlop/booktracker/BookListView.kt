@@ -1,5 +1,6 @@
 package pl.torlop.booktracker
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,6 +10,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.room.Room
 import pl.torlop.booktracker.entity.Book
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
@@ -23,26 +26,51 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import kotlinx.coroutines.launch
+import pl.torlop.booktracker.entity.ReadingStatus
 import pl.torlop.booktracker.navigation.MainNavOption
 
 import pl.torlop.booktracker.viewmodel.BookViewModel
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BookListView(drawerState: DrawerState, viewModel: BookViewModel,  navController: NavController) {
     val bookList = viewModel.getAllBooks().collectAsState(initial = emptyList())
+    val bookInProgressList = viewModel.selectBookByReadingStatus(ReadingStatus.IN_PROGRESS.name)
+        .collectAsState(initial = emptyList())
+    val tabs = listOf("All", "In Progress")
+    var selectedTabIndex by remember { mutableStateOf(0) }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ){
+        TabRow(selectedTabIndex = selectedTabIndex) {
+            tabs.forEachIndexed { index, title ->
+                Tab(text = { Text(title) },
+                    selected = selectedTabIndex == index,
+                    onClick = { selectedTabIndex = index }
+                )
+            }
+        }
+        when(selectedTabIndex){
+            0 -> BookList(bookList.value, navController)
+            1 -> BookList(bookInProgressList.value, navController)
+        }
+    }
+}
 
+@Composable
+fun BookList(bookList: List<Book>, navController: NavController) {
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         items(
-            items = bookList.value,
+            items = bookList,
             key = { book ->
-                // Return a stable + unique key for the item
                 book.isbn
             }
         ) { book ->
-            println(book.title)
             BookListItem(book, navController)
         }
     }

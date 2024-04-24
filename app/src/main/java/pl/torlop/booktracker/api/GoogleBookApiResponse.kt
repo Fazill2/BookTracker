@@ -24,7 +24,7 @@ data class VolumeInfo(
     val description: String?,
     val industryIdentifiers: List<IndustryIdentifier>?,
     val readingModes: ReadingModes?,
-    val pageCount: Int?,
+    val pageCount: String?,
     val printType: String?,
     val categories: List<String>?,
     val averageRating: Double?,
@@ -32,6 +32,7 @@ data class VolumeInfo(
     val maturityRating: String?,
     val allowAnonLogging: Boolean?,
     val contentVersion: String?,
+    val imageLinks: ImageLinks?,
     val panelizationSummary: PanelizationSummary?,
     val language: String?,
     val previewLink: String?,
@@ -54,6 +55,10 @@ data class PanelizationSummary(
     val containsImageBubbles: Boolean?
 )
 
+data class ImageLinks(
+    val smallThumbnail: String?,
+    val thumbnail: String?
+)
 
 data class SaleInfo(
     val country: String?,

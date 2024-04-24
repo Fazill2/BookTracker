@@ -23,6 +23,7 @@ import pl.torlop.booktracker.viewmodel.BookViewModel
 
 @Composable
 fun BookDetailsView(drawerState: DrawerState, viewModel: BookViewModel, navController: NavController, isbn: String) {
+    println(isbn)
     val book = viewModel.selectBookById(isbn).collectAsState(initial = getEmptyBook())
     val readingStatus = remember { mutableStateOf(book.value.readingStatus) }
 
@@ -36,19 +37,21 @@ fun BookDetailsView(drawerState: DrawerState, viewModel: BookViewModel, navContr
 @Composable
 fun BookDetails(book: State<Book>, onClickStartReading: () -> Unit, onClickFinishReading: () -> Unit){
     Column(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier
             .verticalScroll(rememberScrollState())
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surfaceContainerLow),
+            .background(MaterialTheme.colorScheme.surfaceContainerLow)
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
+        println(book.value.coverUrl)
         Row (
             modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainer).padding(8.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             AsyncImage(
-                modifier = Modifier.size(140.dp),
-                contentScale = ContentScale.FillHeight,
+                modifier = Modifier.padding(8.dp).height(140.dp).widthIn(0.dp, 100.dp),
+                contentScale = ContentScale.Fit,
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(book.value.coverUrl)
                     .crossfade(true)

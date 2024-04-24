@@ -13,11 +13,6 @@ interface IsbnApiService {
     @Headers(
         "Accept: application/json"
     )
-    @GET("isbn/{isbn}.json")
-    fun getBookByIsbn(@Path("isbn") isbn: String): Call<OpenLibraryISBNResponseClass>
-    @Headers(
-        "Accept: application/json"
-    )
     @GET("volumes")
     fun getBookByIsbnGoogleApi(@Query("q") isbn: String): Call<GoogleBookApiResponse>
 }

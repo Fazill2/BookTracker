@@ -31,6 +31,7 @@ import pl.torlop.booktracker.navigation.NavigationRoutes.Companion.floatingActio
 import pl.torlop.booktracker.navigation.NavigationRoutes.Companion.mainNavigationItems
 import pl.torlop.booktracker.ui.theme.BookTrackerTheme
 import pl.torlop.booktracker.viewmodel.BookViewModel
+import pl.torlop.booktracker.viewmodel.SessionViewModel
 
 class MainActivity : ComponentActivity() {
     private val db by lazy {
@@ -45,6 +46,15 @@ class MainActivity : ComponentActivity() {
             object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
                     return BookViewModel(db.bookDao()) as T
+                }
+            }
+        }
+    )
+    private val sessionViewModel by viewModels<SessionViewModel>(
+        factoryProducer = {
+            object : ViewModelProvider.Factory {
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    return SessionViewModel(db.readingSessionDao()) as T
                 }
             }
         }
@@ -140,7 +150,7 @@ class MainActivity : ComponentActivity() {
                                 startDestination = NavRoutes.MainRoute.name,
                                 modifier = Modifier.padding(padding).fillMaxSize()
                             ) {
-                                mainGraph(drawerState, viewModel, navController)
+                                mainGraph(drawerState, viewModel, sessionViewModel, navController)
                             }
                         }
                     }
@@ -152,7 +162,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-fun NavGraphBuilder.mainGraph(drawerState: DrawerState, viewModel: BookViewModel, navController: NavController) {
+fun NavGraphBuilder.mainGraph(drawerState: DrawerState, viewModel: BookViewModel,
+                              sessionViewModel: SessionViewModel, navController: NavController) {
     navigation(startDestination = MainNavOption.HomeScreen.name, route = NavRoutes.MainRoute.name) {
         composable(MainNavOption.HomeScreen.name){
             HomeScreen(drawerState, viewModel, navController)
@@ -172,6 +183,22 @@ fun NavGraphBuilder.mainGraph(drawerState: DrawerState, viewModel: BookViewModel
             ){
             entry ->
             BookDetailsView(drawerState, viewModel, navController, entry.arguments?.getString("isbn")!!)
+        }
+        composable(
+            route = MainNavOption.NewSessionScreen.name,
+            arguments = listOf(navArgument("isbn") {
+                nullable = true
+                defaultValue = null
+                type = NavType.StringType })
+        ){
+            NewSessionView(drawerState, viewModel, sessionViewModel, navController)
+        }
+        composable("addSessionManually/{isbn}",
+            arguments = listOf(navArgument("isbn") { type = NavType.StringType })
+        ){
+            entry ->
+            AddSessionManuallyView(drawerState, viewModel, sessionViewModel,
+                navController, entry.arguments?.getString("isbn")!!)
         }
     }
 }

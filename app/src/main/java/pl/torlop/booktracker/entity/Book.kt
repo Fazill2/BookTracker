@@ -11,6 +11,7 @@ data class Book(
     @ColumnInfo(name="author") val author: String,
     @ColumnInfo(name="pages") val pages: Int,
     @ColumnInfo(name="genre") val genre: String,
+    @ColumnInfo(name="datePublished") val datePublished: String,
     @ColumnInfo(name="rating") val rating: Int,
     @ColumnInfo(name="description") val description: String,
     @ColumnInfo(name="coverUrl") val coverUrl: String,
@@ -22,7 +23,7 @@ data class Book(
 )
 
 fun getEmptyBook(): Book {
-    return Book("", "", "", 0, "", 0, "", "", "", "", "", "", "")
+    return Book("", "", "", 0, "", "", 0, "", "", "", "", "", "", "")
 }
 
 enum class ReadingStatus {

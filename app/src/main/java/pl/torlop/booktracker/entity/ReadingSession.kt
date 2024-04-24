@@ -2,18 +2,23 @@ package pl.torlop.booktracker.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.time.Instant
+import java.util.Date
+import kotlin.time.Duration
 
 @Entity
 data class ReadingSession(
-    @PrimaryKey(autoGenerate = true) val id: Int,
-    val bookIsbn: String,
-    val timeStarted: String,
-    val timeEnded: String,
-    val pagesRead: Int,
-    val notes: String
-)
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    var bookIsbn: String,
+    var duration: Int,
+    var date: Date,
+    var pagesStart : Int,
+    var pagesEnd: Int
+){
+
+}
 
 fun getEmptyReadingSession(): ReadingSession {
-    return ReadingSession(0, "", "", "", 0, "")
+    return ReadingSession(0, "", 0, Date.from(Instant.now()), 0, 0)
 }
 

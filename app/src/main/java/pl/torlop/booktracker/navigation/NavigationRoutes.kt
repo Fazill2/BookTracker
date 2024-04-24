@@ -21,12 +21,6 @@ class NavigationRoutes {
                 unselectedIcon = Icons.Filled.Menu
             ),
             NavigationItem(
-                route = "settings",
-                title = "Settings",
-                selectedIcon = Icons.Filled.Settings,
-                unselectedIcon = Icons.Outlined.Settings
-            ),
-            NavigationItem(
                 route = MainNavOption.AccountsScreen.name,
                 title = "Account",
                 selectedIcon = Icons.Filled.AccountBox,
@@ -39,6 +33,11 @@ class NavigationRoutes {
                 route = MainNavOption.AddBookScreen.name,
                 icon = Icons.Filled.Add,
                 contentDescription = "Add a new book"
+            ),
+            MainNavOption.HomeScreen.name to FloatingActionButtonData(
+                route = MainNavOption.NewSessionScreen.name,
+                icon = Icons.Filled.Add,
+                contentDescription = "Add a new book"
             )
         )
     }
@@ -49,7 +48,9 @@ enum class MainNavOption {
     BooksScreen,
     AccountsScreen,
     AddBookScreen,
-    BookDetailsScreen
+    BookDetailsScreen,
+    NewSessionScreen,
+    AddSessionManuallyScreen
 }
 
 enum class NavRoutes {

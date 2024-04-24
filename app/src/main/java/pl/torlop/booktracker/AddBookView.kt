@@ -1,5 +1,6 @@
 package pl.torlop.booktracker
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -32,93 +33,113 @@ fun AddBookView(drawerState: DrawerState, viewModel: BookViewModel,  navControll
     var isbn by rememberSaveable { mutableStateOf("") }
     var title by rememberSaveable { mutableStateOf("") }
     var author by rememberSaveable { mutableStateOf("") }
+    var datePublished by rememberSaveable { mutableStateOf("") }
     var pages by rememberSaveable { mutableStateOf("") }
     var genre by rememberSaveable { mutableStateOf("") }
-    var rating by rememberSaveable { mutableStateOf("") }
     var description by rememberSaveable { mutableStateOf("") }
     var coverUrl by rememberSaveable { mutableStateOf("") }
-
     val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
     val apiService = retrofit.create(IsbnApiService::class.java)
 
-
     Column(
-
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        TextField(
-            value = isbn,
-            onValueChange = { isbn = it },
-            label = { Text("ISBN") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Button(
-            onClick = {
-                val formattedIsbn = "isbn:" + isbn.replace(Regex("[^0-9]"), "")
-                val call = apiService.getBookByIsbnGoogleApi(formattedIsbn)
-                call.enqueue(object : Callback<GoogleBookApiResponse> {
-                    override fun onResponse(
-                        call: Call<GoogleBookApiResponse>,
-                        response: Response<GoogleBookApiResponse>
-                    ) {
-                        val bookData = response.body()
-                        if (bookData?.items != null && bookData.items.isNotEmpty()
-                            && bookData.items[0].volumeInfo != null) {
-                            title = bookData.items[0].volumeInfo?.title ?: ""
-                            author = bookData.items[0].volumeInfo?.authors?.get(0) ?: ""
-                            pages = bookData.items[0].volumeInfo?.pageCount.toString()
-                            genre = bookData.items[0].volumeInfo?.categories?.get(0) ?: ""
-                            description = bookData.items[0].volumeInfo?.description ?: ""
-                        }
-                    }
-                    override fun onFailure(call: Call<GoogleBookApiResponse>, t: Throwable) {
-                        println("Error: ${t.message}")
-                    }
-                })
-            },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+       Row(
+           modifier = Modifier.fillMaxWidth(),
+           horizontalArrangement = Arrangement.spacedBy(16.dp)
+       ) {
+           TextField(
+               value = isbn,
+               onValueChange = { isbn = it },
+               label = { Text("ISBN") },
+               modifier = Modifier.fillMaxWidth(0.5f)
+           )
+           Button(
+               onClick = {
+                   val formattedIsbn = "isbn:" + isbn.replace(Regex("[^0-9]"), "")
+                   val call = apiService.getBookByIsbnGoogleApi(formattedIsbn)
+                   call.enqueue(object : Callback<GoogleBookApiResponse> {
+                       override fun onResponse(
+                           call: Call<GoogleBookApiResponse>,
+                           response: Response<GoogleBookApiResponse>
+                       ) {
+                           val bookData = response.body()
+                           if (bookData?.items != null && bookData.items.isNotEmpty()
+                               && bookData.items[0].volumeInfo != null
+                           ) {
+                               val tempCover = if (bookData.items[0].volumeInfo?.imageLinks?.thumbnail != null) {
+                                   bookData.items[0].volumeInfo?.imageLinks?.thumbnail.toString()
+                                       .replace("http://", "https://")
+                               } else {
+                                   ""
+                               }
+                               title = bookData.items[0].volumeInfo?.title ?: ""
+                               author = bookData.items[0].volumeInfo?.authors?.get(0) ?: ""
+                               pages = bookData.items[0].volumeInfo?.pageCount ?: ""
+                               genre = bookData.items[0].volumeInfo?.categories?.get(0) ?: ""
+                               description = bookData.items[0].volumeInfo?.description ?: ""
+                               coverUrl = tempCover
+                               datePublished = bookData.items[0].volumeInfo?.publishedDate ?: ""
+                           }
+                       }
+
+                       override fun onFailure(call: Call<GoogleBookApiResponse>, t: Throwable) {
+                           println("Error: ${t.message}")
+                       }
+                   })
+               },
+               modifier = Modifier.padding(start = 8.dp).align(Alignment.CenterVertically).fillMaxWidth()
+           ) {
+               Text("Get data", modifier = Modifier.padding(8.dp).align(Alignment.CenterVertically))
+           }
+       }
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ){
+            TextField(
+                value = title,
+                onValueChange = { title = it },
+                label = { Text("Title") },
+                modifier = Modifier.fillMaxWidth(0.5f)
+            )
+            TextField(
+                value = author,
+                onValueChange = { author = it },
+                label = { Text("Author") },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("Get Book Data from isbn code")
+            TextField(
+                value = pages,
+                onValueChange = { pages = it },
+                label = { Text("Pages") },
+                modifier = Modifier.fillMaxWidth(0.5f)
+            )
+            TextField(
+                value = genre,
+                onValueChange = { genre = it },
+                label = { Text("Genre") },
+                modifier = Modifier.fillMaxWidth()
+            )
         }
         Spacer(modifier = Modifier.height(16.dp))
         TextField(
-            value = title,
-            onValueChange = { title = it },
-            label = { Text("Title") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        TextField(
-            value = author,
-            onValueChange = { author = it },
-            label = { Text("Author") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        TextField(
-            value = pages,
-            onValueChange = { pages = it },
-            label = { Text("Pages") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        TextField(
-            value = genre,
-            onValueChange = { genre = it },
-            label = { Text("Genre") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        TextField(
-            value = rating,
-            onValueChange = { rating = it },
-            label = { Text("Rating") },
+            value = datePublished,
+            onValueChange = { datePublished = it },
+            label = { Text("Date Published") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -139,7 +160,6 @@ fun AddBookView(drawerState: DrawerState, viewModel: BookViewModel,  navControll
         Button(
             onClick = {
                 val pagesInt = pages.toIntOrNull() ?: 0
-                val ratingInt = rating.toIntOrNull() ?: 0
                 // set dateAdded to current date in  format dd.MM.yyyy
                 val currentDateTime = LocalDateTime.now()
                 val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
@@ -148,9 +168,10 @@ fun AddBookView(drawerState: DrawerState, viewModel: BookViewModel,  navControll
                     isbn = isbn,
                     title = title,
                     author = author,
+                    datePublished = datePublished,
                     pages = pagesInt,
                     genre = genre,
-                    rating = ratingInt,
+                    rating = 0,
                     description = description,
                     coverUrl = coverUrl,
                     readingStatus = "",
