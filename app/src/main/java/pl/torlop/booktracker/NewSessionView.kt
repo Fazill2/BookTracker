@@ -12,10 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import pl.torlop.booktracker.entity.Book
-import pl.torlop.booktracker.entity.ReadingSession
-import pl.torlop.booktracker.entity.getEmptyBook
-import pl.torlop.booktracker.entity.getEmptyReadingSession
+import androidx.navigation.NavOptionsBuilder
+import pl.torlop.booktracker.entity.*
 import pl.torlop.booktracker.navigation.MainNavOption
 import pl.torlop.booktracker.ui.components.IntegerInputField
 import pl.torlop.booktracker.viewmodel.BookViewModel
@@ -34,16 +32,19 @@ fun NewSessionView(drawerState: DrawerState, viewModel: BookViewModel, sessionVi
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ){
-        BookAutoComplete(bookList.value, onBookSelected = { selectedBook.value = it }, preselectedBook = book.value)
+        Text(text = "Add new reading session", style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(16.dp))
+        BookAutoComplete(bookList.value, onBookSelected = { selectedBook.value = it }, preselectedBook = book.value, selectedIsb = isbn ?: "")
         Button(
             onClick = { /*TODO*/ },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            enabled = selectedBook.value.isbn.isNotEmpty()
         ) {
             Text(text = "Start reading session")
         }
         Button(
             onClick = { navController.navigate("addSessionManually/${selectedBook.value.isbn}") },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            enabled = selectedBook.value.isbn.isNotEmpty()
         ) {
             Text(text = "Add session manually")
         }
@@ -57,7 +58,7 @@ fun AddSessionManuallyView(drawerState: DrawerState, viewModel: BookViewModel, s
     println(isbn)
     val book = viewModel.selectBookById(isbn).collectAsState(initial = getEmptyBook())
 
-    ReadingSessionForm(navController, sessionViewModel, book.value)
+    ReadingSessionForm(navController, viewModel, sessionViewModel, book.value)
 }
 
 private fun convertMillisToDate(millis: Long): Date {
@@ -67,7 +68,7 @@ private fun convertMillisToDate(millis: Long): Date {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReadingSessionForm(navController: NavController, sessionViewModel: SessionViewModel, book: Book){
+fun ReadingSessionForm(navController: NavController, viewModel: BookViewModel, sessionViewModel: SessionViewModel, book: Book){
     val datePickerState = rememberDatePickerState(selectableDates = object : SelectableDates {
         override fun isSelectableDate(utcTimeMillis: Long): Boolean {
             return utcTimeMillis <= System.currentTimeMillis()
@@ -77,8 +78,8 @@ fun ReadingSessionForm(navController: NavController, sessionViewModel: SessionVi
         convertMillisToDate(it)
     }
     val duration = remember { mutableStateOf("") }
-    val pagesStart = remember { mutableStateOf("") }
-    val pagesEnd = remember { mutableStateOf("") }
+    val pagesStart = remember { mutableStateOf("0") }
+    val pagesEnd = remember { mutableStateOf("0") }
 
     Column(
         modifier = Modifier
@@ -117,6 +118,7 @@ fun ReadingSessionForm(navController: NavController, sessionViewModel: SessionVi
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
+
         DatePicker(
             state = datePickerState
         )
@@ -132,7 +134,26 @@ fun ReadingSessionForm(navController: NavController, sessionViewModel: SessionVi
                     pagesEnd = pagesEnd.value.toIntOrNull() ?: 0
                 )
                 sessionViewModel.addSession(session)
-                navController.popBackStack()
+                book.currentPages = pagesEnd.value.toIntOrNull() ?: 0
+                if (book.pages == pagesEnd.value.toIntOrNull()) {
+                    book.readingStatus = ReadingStatus.FINISHED.name
+                    val finishedDate = selectedDate ?: Date()
+                    val finishedDateString = finishedDate.toString()
+                    book.dateFinished = finishedDateString
+                } else {
+                    book.readingStatus = ReadingStatus.IN_PROGRESS.name
+                    val startedDate = selectedDate ?: Date()
+                    val startedDateString = startedDate.toString()
+                    if (book.dateStarted.isEmpty()) {
+                        book.dateStarted = startedDateString
+                    }
+                }
+                viewModel.update(book)
+                navController.navigate("bookDetails/${book.isbn}"){
+                    NavOptionsBuilder().popUpTo("bookDetails/${book.isbn}"){
+                        inclusive = true
+                    }
+                }
             },
             modifier = Modifier.align(Alignment.CenterHorizontally),
             enabled = selectedDate != null && duration.value.isNotEmpty() && pagesStart.value.isNotEmpty()

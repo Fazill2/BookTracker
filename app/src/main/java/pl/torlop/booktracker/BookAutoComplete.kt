@@ -22,13 +22,21 @@ fun BookAutoComplete(
     bookList: List<Book>,
     onBookSelected: (Book) -> Unit,
     preselectedBook: Book? = null,
-    label: String = "Search books"
+    label: String = "Select book",
+    selectedIsb: String = ""
 ) {
     var searchText by remember { mutableStateOf("") }
     val filteredBooks = remember { mutableStateOf<List<Book>>(emptyList()) }
-    var selectedIsbn by remember { mutableStateOf("") }
+    var selectedIsbn by remember { mutableStateOf(selectedIsb) }
     LaunchedEffect(preselectedBook) {
-        searchText = preselectedBook?.title ?: ""
+        if (preselectedBook != null) {
+            searchText = preselectedBook.title ?: ""
+            filteredBooks.value = bookList.filter {
+                it.title.contains(preselectedBook.title ?: "", ignoreCase = true)
+            }
+
+            onBookSelected(preselectedBook)
+        }
     }
     Column(
         modifier = Modifier.padding(16.dp).background(MaterialTheme.colorScheme.surfaceContainer)

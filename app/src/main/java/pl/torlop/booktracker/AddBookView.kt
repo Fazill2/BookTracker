@@ -18,6 +18,7 @@ import pl.torlop.booktracker.api.ApiConstants.Companion.BASE_URL
 import pl.torlop.booktracker.api.GoogleBookApiResponse
 import pl.torlop.booktracker.api.IsbnApiService
 import pl.torlop.booktracker.entity.Book
+import pl.torlop.booktracker.entity.ReadingStatus
 import pl.torlop.booktracker.navigation.MainNavOption
 import pl.torlop.booktracker.viewmodel.BookViewModel
 import retrofit2.Call
@@ -173,8 +174,11 @@ fun AddBookView(drawerState: DrawerState, viewModel: BookViewModel,  navControll
                     genre = genre,
                     rating = 0,
                     description = description,
+                    publisher = "",
+                    language = "",
                     coverUrl = coverUrl,
-                    readingStatus = "",
+                    currentPages = 0,
+                    readingStatus = ReadingStatus.NOT_STARTED.name,
                     dateStarted = "",
                     dateFinished = "",
                     dateAdded = dateAdded,

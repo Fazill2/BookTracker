@@ -20,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -78,7 +80,7 @@ fun BookList(bookList: List<Book>, navController: NavController) {
 
 @Composable
 fun BookListItem(book: Book, navController: NavController) {
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surfaceContainer)
@@ -87,24 +89,42 @@ fun BookListItem(book: Book, navController: NavController) {
                 navController.navigate("bookDetails/${book.isbn}")
             }
     ) {
-        val placeholder = Color.Gray
-        AsyncImage(
-            modifier = Modifier.size(100.dp),
-            contentScale = ContentScale.FillHeight,
-            contentDescription = book.title,
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(book.coverUrl)
-                .crossfade(true)
-                .build(),
-
-        )
-        Column(
+        Row(
             modifier = Modifier
+                .fillMaxWidth()
                 .padding(8.dp)
-                .weight(1f)
         ) {
-            Text(text = book.title, style = MaterialTheme.typography.labelLarge)
-            Text(text = book.author, style = MaterialTheme.typography.labelMedium)
+            AsyncImage(
+                modifier = Modifier.size(100.dp),
+                contentScale = ContentScale.FillHeight,
+                contentDescription = book.title,
+                error = painterResource(R.drawable.missing_cover),
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(book.coverUrl)
+                    .crossfade(true)
+                    .build(),
+                )
+            Column(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .weight(1f)
+            ) {
+                Text(text = book.title, style = MaterialTheme.typography.labelLarge)
+                Text(text = book.author, style = MaterialTheme.typography.labelMedium)
+            }
         }
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            LinearProgressIndicator(
+                progress = { book.currentPages.toFloat() / book.pages.toFloat() },
+                modifier = Modifier.fillMaxWidth(0.7f),
+                color = MaterialTheme.colorScheme.tertiary
+            )
+            Text(text = "${book.currentPages}/${book.pages}", style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.Center)
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }

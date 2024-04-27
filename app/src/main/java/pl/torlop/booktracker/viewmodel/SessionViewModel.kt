@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import pl.torlop.booktracker.dao.ReadingSessionDao
 import pl.torlop.booktracker.entity.ReadingSession
+import pl.torlop.booktracker.entity.SumDurationByDate
 import java.util.*
 
 class SessionViewModel(private val sessionDao: ReadingSessionDao) : ViewModel(){
@@ -35,6 +36,14 @@ class SessionViewModel(private val sessionDao: ReadingSessionDao) : ViewModel(){
 
     fun getSessionsByIsbnAndDate(isbn: String, date: Date): Flow<List<ReadingSession>> {
         return sessionDao.getSessionsByIsbnAndDate(isbn, date)
+    }
+
+    fun getDailyReadingTime(): Flow<List<SumDurationByDate>> {
+        return sessionDao.getDailyReadingTime()
+    }
+
+    fun getDailyReadingTimeBetweenDates(startDate: Date, endDate: Date): Flow<List<SumDurationByDate>> {
+        return sessionDao.getDailyReadingTimeBetweenDates(startDate, endDate)
     }
 
     fun update(session: ReadingSession) {

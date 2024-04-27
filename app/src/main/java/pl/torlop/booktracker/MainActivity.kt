@@ -166,7 +166,7 @@ fun NavGraphBuilder.mainGraph(drawerState: DrawerState, viewModel: BookViewModel
                               sessionViewModel: SessionViewModel, navController: NavController) {
     navigation(startDestination = MainNavOption.HomeScreen.name, route = NavRoutes.MainRoute.name) {
         composable(MainNavOption.HomeScreen.name){
-            HomeScreen(drawerState, viewModel, navController)
+            HomeScreen(drawerState, viewModel, sessionViewModel, navController)
         }
         composable(MainNavOption.BooksScreen.name){
             BookListView(drawerState, viewModel, navController)
@@ -182,16 +182,21 @@ fun NavGraphBuilder.mainGraph(drawerState: DrawerState, viewModel: BookViewModel
             arguments = listOf(navArgument("isbn") { type = NavType.StringType })
             ){
             entry ->
-            BookDetailsView(drawerState, viewModel, navController, entry.arguments?.getString("isbn")!!)
+            BookDetailsView(drawerState, viewModel, sessionViewModel, navController, entry.arguments?.getString("isbn")!!)
         }
         composable(
             route = MainNavOption.NewSessionScreen.name,
+        ){
+            NewSessionView(drawerState, viewModel, sessionViewModel, navController)
+        }
+        composable(
+            route = "newSession/{isbn}",
             arguments = listOf(navArgument("isbn") {
                 nullable = true
                 defaultValue = null
                 type = NavType.StringType })
         ){
-            NewSessionView(drawerState, viewModel, sessionViewModel, navController)
+            NewSessionView(drawerState, viewModel, sessionViewModel, navController, it.arguments?.getString("isbn"))
         }
         composable("addSessionManually/{isbn}",
             arguments = listOf(navArgument("isbn") { type = NavType.StringType })
