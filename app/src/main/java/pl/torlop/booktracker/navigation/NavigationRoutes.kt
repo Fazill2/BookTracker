@@ -3,6 +3,8 @@ package pl.torlop.booktracker.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.AccountBox
+import androidx.compose.material.icons.outlined.AutoStories
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 
 class NavigationRoutes {
@@ -12,13 +14,13 @@ class NavigationRoutes {
                 route = MainNavOption.HomeScreen.name,
                 title = "Home",
                 selectedIcon = Icons.Filled.Home,
-                unselectedIcon = Icons.Filled.Home
+                unselectedIcon = Icons.Outlined.Home
             ),
             NavigationItem(
                 route = MainNavOption.BooksScreen.name,
                 title = "Books",
-                selectedIcon = Icons.Filled.Menu,
-                unselectedIcon = Icons.Filled.Menu
+                selectedIcon = Icons.Filled.AutoStories,
+                unselectedIcon = Icons.Outlined.AutoStories
             ),
             NavigationItem(
                 route = MainNavOption.AccountsScreen.name,
@@ -36,8 +38,8 @@ class NavigationRoutes {
             ),
             MainNavOption.HomeScreen.name to FloatingActionButtonData(
                 route = MainNavOption.NewSessionScreen.name,
-                icon = Icons.Filled.Add,
-                contentDescription = "Add a new book"
+                icon = Icons.Filled.MoreTime,
+                contentDescription = "Start a new session"
             )
         )
     }
