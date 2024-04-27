@@ -41,11 +41,11 @@ interface ReadingSessionDao {
     @Upsert
     suspend fun insert(session: ReadingSession)
 
-    @Query("SELECT * FROM readingsession GROUP BY date ORDER BY date ASC")
+    @Query("SELECT date, SUM(duration) as duration FROM readingsession GROUP BY date ORDER BY date ASC")
     fun getDailyReadingTime(): Flow<List<SumDurationByDate>>
 
     // get daily reading time in specific date range
-    @Query("SELECT * FROM readingsession WHERE date BETWEEN (:startDate) AND (:endDate) GROUP BY date ORDER BY date ASC")
+    @Query("SELECT date, SUM(duration) as duration FROM readingsession WHERE date BETWEEN (:startDate) AND (:endDate) GROUP BY date ORDER BY date ASC")
     fun getDailyReadingTimeBetweenDates(startDate: Date, endDate: Date): Flow<List<SumDurationByDate>>
 
 
