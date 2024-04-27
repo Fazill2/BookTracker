@@ -9,12 +9,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import pl.torlop.booktracker.R
 import pl.torlop.booktracker.entity.Book
 import pl.torlop.booktracker.entity.ReadingSession
 import pl.torlop.booktracker.entity.ReadingStatus
@@ -42,7 +45,8 @@ fun BookDetailsComponent(book: State<Book>, readingSessions: State<List<ReadingS
                     .data(book.value.coverUrl)
                     .crossfade(true)
                     .build(),
-                contentDescription = null
+                contentDescription = book.value.title,
+                error = painterResource(R.drawable.missing_cover),
             )
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(book.value.title, style = MaterialTheme.typography.titleLarge)
@@ -55,14 +59,9 @@ fun BookDetailsComponent(book: State<Book>, readingSessions: State<List<ReadingS
         Text(book.value.description, style = MaterialTheme.typography.bodyMedium)
         if (readingSessions.value.isNotEmpty()) {
             Text("Reading sessions", style = MaterialTheme.typography.titleMedium)
-            Column {
-                readingSessions.value.forEach {
-                    Text("On ${it.date} you read from ${it.pagesStart} to  ",
-                        style = MaterialTheme.typography.bodyMedium)
-                }
-            }
+            SessionListComponent(readingSessions.value)
         }
-        SessionListComponent(readingSessions.value)
+
         val label = when (book.value.readingStatus) {
             ReadingStatus.IN_PROGRESS.name -> "Continue reading"
             ReadingStatus.FINISHED.name -> "Read again"
@@ -71,7 +70,7 @@ fun BookDetailsComponent(book: State<Book>, readingSessions: State<List<ReadingS
             }
         }
 
-        Button(onClick = onClickStartReading) {
+        Button(onClick = onClickStartReading, modifier = Modifier.align(Alignment.CenterHorizontally)) {
             Text(label)
         }
     }
