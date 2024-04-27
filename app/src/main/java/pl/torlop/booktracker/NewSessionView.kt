@@ -134,23 +134,10 @@ fun ReadingSessionForm(navController: NavController, viewModel: BookViewModel, s
                     pagesEnd = pagesEnd.value.toIntOrNull() ?: 0
                 )
                 sessionViewModel.addSession(session)
-                book.currentPages = pagesEnd.value.toIntOrNull() ?: 0
-                if (book.pages == pagesEnd.value.toIntOrNull()) {
-                    book.readingStatus = ReadingStatus.FINISHED.name
-                    val finishedDate = selectedDate ?: Date()
-                    val finishedDateString = finishedDate.toString()
-                    book.dateFinished = finishedDateString
-                } else {
-                    book.readingStatus = ReadingStatus.IN_PROGRESS.name
-                    val startedDate = selectedDate ?: Date()
-                    val startedDateString = startedDate.toString()
-                    if (book.dateStarted.isEmpty()) {
-                        book.dateStarted = startedDateString
-                    }
-                }
-                viewModel.update(book)
-                navController.navigate("bookDetails/${book.isbn}"){
-                    NavOptionsBuilder().popUpTo("bookDetails/${book.isbn}"){
+                val updatedBook = updateBookAfterSession(book, session)
+                viewModel.update(updatedBook)
+                navController.navigate("bookDetails/${updatedBook.isbn}"){
+                    NavOptionsBuilder().popUpTo(MainNavOption.HomeScreen.name){
                         inclusive = true
                     }
                 }
@@ -162,4 +149,18 @@ fun ReadingSessionForm(navController: NavController, viewModel: BookViewModel, s
             Text(text = "Add session")
         }
     }
+}
+
+fun updateBookAfterSession(book: Book, session: ReadingSession): Book {
+    book.currentPages = session.pagesEnd
+    if (book.pages == session.pagesEnd) {
+        book.readingStatus = ReadingStatus.FINISHED.name
+        book.dateFinished = session.date.toString()
+    } else {
+        book.readingStatus = ReadingStatus.IN_PROGRESS.name
+        if (book.dateStarted.isEmpty()) {
+            book.dateStarted = session.date.toString()
+        }
+    }
+    return book
 }

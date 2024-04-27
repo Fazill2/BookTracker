@@ -43,7 +43,7 @@ fun HomeScreen(drawerState: DrawerState, viewModel: BookViewModel, sessionViewMo
                 .padding(16.dp)
         ) {
             BarChartComponent(
-                basicData = sessionList.value,
+                basicData = sessionWeekList.value,
                 modifier = Modifier,
                 startDate = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -6) }.time,
                 endDate = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, 1);  set(Calendar.HOUR_OF_DAY, 0)  }.time
