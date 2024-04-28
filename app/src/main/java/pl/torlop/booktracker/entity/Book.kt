@@ -22,11 +22,12 @@ data class Book(
     @ColumnInfo(name="dateStarted") var dateStarted: String,
     @ColumnInfo(name="dateFinished") var dateFinished: String,
     @ColumnInfo(name="dateAdded") val dateAdded: String,
-    @ColumnInfo(name="ownershipStatus") var ownershipStatus: String
+    @ColumnInfo(name="ownershipStatus") var ownershipStatus: String,
+    @ColumnInfo(name="timesRead") var timesRead: Int
 )
 
 fun getEmptyBook(): Book {
-    return Book("", "", "", 0, "", "", 0, "", "", "", "", 0, "", "", "", "", "")
+    return Book("", "", "", 0, "", "", 0, "", "", "", "", 0, "", "", "", "", "", 0)
 }
 
 enum class ReadingStatus {

@@ -25,6 +25,7 @@ class Utils {
             if (book.pages == session.pagesEnd) {
                 book.readingStatus = ReadingStatus.FINISHED.name
                 book.dateFinished = session.date.toString()
+                book.timesRead += 1
             } else {
                 book.readingStatus = ReadingStatus.IN_PROGRESS.name
                 if (book.dateStarted.isEmpty()) {

@@ -9,7 +9,7 @@ import pl.torlop.booktracker.entity.Book
 import pl.torlop.booktracker.entity.Converters
 import pl.torlop.booktracker.entity.ReadingSession
 
-@Database(entities = [Book::class, ReadingSession::class], version = 5)
+@Database(entities = [Book::class, ReadingSession::class], version = 6)
 @TypeConverters(Converters::class)
 
 abstract class AppDatabase : RoomDatabase() {

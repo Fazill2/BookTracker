@@ -182,7 +182,8 @@ fun AddBookView(drawerState: DrawerState, viewModel: BookViewModel,  navControll
                     dateStarted = "",
                     dateFinished = "",
                     dateAdded = dateAdded,
-                    ownershipStatus = ""
+                    ownershipStatus = "",
+                    timesRead = 0
                 )
                 viewModel.addBook(newBook)
                 navController.navigate(MainNavOption.BooksScreen.name )
