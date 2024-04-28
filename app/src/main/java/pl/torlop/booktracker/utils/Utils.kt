@@ -35,7 +35,8 @@ class Utils {
             return book
         }
 
-        public val USER_NAME = stringPreferencesKey("username")
+        val USER_NAME = stringPreferencesKey("username")
         val TOKEN_ID = stringPreferencesKey("token_id")
+        val USER_IMAGE_URI = stringPreferencesKey("user_image_uri")
     }
 }

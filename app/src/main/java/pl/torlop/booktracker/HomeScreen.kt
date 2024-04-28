@@ -30,7 +30,7 @@ fun HomeScreen(drawerState: DrawerState, viewModel: BookViewModel, sessionViewMo
     val sessionList = sessionViewModel.getDailyReadingTime().collectAsState(initial = emptyList())
     val sessionWeekList = sessionViewModel.getDailyReadingTimeBetweenDates(
         Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -7) }.time,
-        Calendar.getInstance().time
+        Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, 1);  set(Calendar.HOUR_OF_DAY, 0)  }.time
     ).collectAsState(initial = emptyList())
     Column(
         modifier = Modifier
@@ -62,7 +62,7 @@ fun HomeScreen(drawerState: DrawerState, viewModel: BookViewModel, sessionViewMo
 }
 
 fun createDataPoints(data: List<SumDurationByDate>, color: Color): MutableList<BarData> {
-    val values = data.map { it.duration / 60 }
+    val values = data.map { it.duration / 60f }
 
     return values.mapIndexed { index, value ->
         BarData(

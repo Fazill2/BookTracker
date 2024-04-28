@@ -12,15 +12,22 @@ import kotlinx.coroutines.launch
 
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModel
@@ -30,6 +37,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.room.Room
+import kotlinx.coroutines.flow.map
 import pl.torlop.booktracker.navigation.MainNavOption
 import pl.torlop.booktracker.navigation.NavRoutes
 import pl.torlop.booktracker.navigation.NavigationRoutes.Companion.floatingActionButtons
@@ -38,6 +46,9 @@ import pl.torlop.booktracker.session.AddSessionManuallyView
 import pl.torlop.booktracker.session.StartReadingSessionView
 import pl.torlop.booktracker.ui.components.FloatingActionScaffoldButton
 import pl.torlop.booktracker.ui.theme.BookTrackerTheme
+import pl.torlop.booktracker.utils.Utils.Companion.TOKEN_ID
+import pl.torlop.booktracker.utils.Utils.Companion.USER_IMAGE_URI
+import pl.torlop.booktracker.utils.Utils.Companion.USER_NAME
 import pl.torlop.booktracker.viewmodel.BookViewModel
 import pl.torlop.booktracker.viewmodel.SessionViewModel
 
@@ -74,6 +85,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             BookTrackerTheme {
                 // A surface container using the 'background' color from the theme
@@ -83,10 +95,25 @@ class MainActivity : ComponentActivity() {
                     val scope = rememberCoroutineScope()
                     val selectedItemIndex = rememberSaveable() { mutableIntStateOf(0) }
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
+                    val userName: State<String?> = dataStore.data.map {
+                        it[USER_NAME]
+                    }.collectAsState(initial = null)
+                    val onLogoutClick: () -> Unit = {
+                        scope.launch {
+                            dataStore.edit { settings ->
+                                settings.remove(USER_NAME)
+                                settings.remove(TOKEN_ID)
+                                settings.remove(USER_IMAGE_URI)
+                            }
+                            drawerState.close()
+                        }
+                    }
                     ModalNavigationDrawer(
                         drawerState = drawerState,
                         drawerContent = {
-                            ModalDrawerSheet {
+                            ModalDrawerSheet(
+                                modifier = Modifier.fillMaxHeight(),
+                            ) {
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Column {
                                     mainNavigationItems.forEachIndexed() { index, item  ->
@@ -118,6 +145,20 @@ class MainActivity : ComponentActivity() {
                                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                                         )
                                     }
+                                }
+                                if (userName.value != null) {
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    NavigationDrawerItem(
+                                        label = { Text("Logout") },
+                                        selected = false,
+                                        icon = {
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Filled.Logout,
+                                                contentDescription = "Logout"
+                                            )
+                                        },
+                                        onClick = onLogoutClick
+                                    )
                                 }
                             }
                         },
