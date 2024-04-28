@@ -13,10 +13,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import co.yml.charts.axis.AxisData
 import co.yml.charts.axis.DataCategoryOptions
+import co.yml.charts.common.model.Point
 import co.yml.charts.common.utils.DataUtils
 import co.yml.charts.ui.barchart.BarChart
 import co.yml.charts.ui.barchart.models.BarChartData
 import co.yml.charts.ui.barchart.models.BarChartType
+import co.yml.charts.ui.barchart.models.BarData
 import co.yml.charts.ui.barchart.models.BarStyle
 import pl.torlop.booktracker.createDataPoints
 import pl.torlop.booktracker.entity.SumDurationByDate
@@ -30,10 +32,19 @@ fun BarChartComponent(basicData: List<SumDurationByDate>, modifier: Modifier = M
     if (data.isEmpty()) return
     val labels = data.map { it.date }
     val xAxisData: AxisData = AxisData.Builder()
-        .steps(data.size - 1)
+        .steps(data.size)
         .backgroundColor(Color.Transparent)
-        .axisStepSize(200.dp)
-        .labelData { index -> weekDayLabels[Calendar.getInstance().apply { time = labels[index] }.get(Calendar.DAY_OF_WEEK)].toString().substring(0, 3) }
+        .axisStepSize(50.dp)
+        .labelData {
+            index ->
+            if (index != data.size) {
+               weekDayLabels[
+                    Calendar.getInstance().apply { time = labels[index] }
+                        .get(Calendar.DAY_OF_WEEK)].toString().substring(0, 3)
+            } else {
+                ""
+            }
+        }
         .axisLabelColor(MaterialTheme.colorScheme.tertiary)
         .axisLineColor(MaterialTheme.colorScheme.tertiary)
         .bottomPadding(15.dp)
@@ -57,6 +68,18 @@ fun BarChartComponent(basicData: List<SumDurationByDate>, modifier: Modifier = M
         .build()
 
     val dataPoints = createDataPoints(data, MaterialTheme.colorScheme.primary)
+    dataPoints.add(
+        BarData(
+            point = Point(
+                x = data.size.toFloat(),
+                y = 0f
+            ),
+            color = Color.Transparent,
+            label = "",
+            description = ""
+
+        )
+    )
 
     val barChartData = BarChartData(
         xAxisData = xAxisData,

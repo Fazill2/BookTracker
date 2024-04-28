@@ -100,4 +100,6 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("co.yml:ycharts:2.1.0")
     implementation("androidx.compose.material:material-icons-extended:1.6.6")
+    implementation("androidx.datastore:datastore-preferences:1.1.0")
+    implementation("androidx.datastore:datastore-preferences-core:1.1.0")
 }

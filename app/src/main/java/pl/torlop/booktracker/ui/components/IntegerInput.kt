@@ -27,7 +27,8 @@ fun IntegerInputField(
     modifier: Modifier = Modifier,
     label: String = "Integer Input",
     minValue: Int = Int.MIN_VALUE,
-    maxValue: Int = Int.MAX_VALUE
+    maxValue: Int = Int.MAX_VALUE,
+    enabled: Boolean = true
 ) {
     var textValue by remember { mutableStateOf(value.toString()) }
 
@@ -55,6 +56,7 @@ fun IntegerInputField(
             keyboardType = KeyboardType.Number
         ),
         modifier = modifier,
-        singleLine = true
+        singleLine = true,
+        enabled = enabled
     )
 }

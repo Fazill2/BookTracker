@@ -1,5 +1,6 @@
 package pl.torlop.booktracker
 
+import android.content.Context
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
@@ -18,6 +19,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.*
@@ -29,6 +34,9 @@ import pl.torlop.booktracker.navigation.MainNavOption
 import pl.torlop.booktracker.navigation.NavRoutes
 import pl.torlop.booktracker.navigation.NavigationRoutes.Companion.floatingActionButtons
 import pl.torlop.booktracker.navigation.NavigationRoutes.Companion.mainNavigationItems
+import pl.torlop.booktracker.session.AddSessionManuallyView
+import pl.torlop.booktracker.session.StartReadingSessionView
+import pl.torlop.booktracker.ui.components.FloatingActionScaffoldButton
 import pl.torlop.booktracker.ui.theme.BookTrackerTheme
 import pl.torlop.booktracker.viewmodel.BookViewModel
 import pl.torlop.booktracker.viewmodel.SessionViewModel
@@ -59,6 +67,8 @@ class MainActivity : ComponentActivity() {
             }
         }
     )
+    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+
 
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -150,7 +160,7 @@ class MainActivity : ComponentActivity() {
                                 startDestination = NavRoutes.MainRoute.name,
                                 modifier = Modifier.padding(padding).fillMaxSize()
                             ) {
-                                mainGraph(drawerState, viewModel, sessionViewModel, navController)
+                                mainGraph(drawerState, viewModel, sessionViewModel, navController, dataStore)
                             }
                         }
                     }
@@ -163,7 +173,8 @@ class MainActivity : ComponentActivity() {
 }
 
 fun NavGraphBuilder.mainGraph(drawerState: DrawerState, viewModel: BookViewModel,
-                              sessionViewModel: SessionViewModel, navController: NavController) {
+                              sessionViewModel: SessionViewModel, navController: NavController,
+                              dataStore: DataStore<Preferences>) {
     navigation(startDestination = MainNavOption.HomeScreen.name, route = NavRoutes.MainRoute.name) {
         composable(MainNavOption.HomeScreen.name){
             HomeScreen(drawerState, viewModel, sessionViewModel, navController)
@@ -172,7 +183,7 @@ fun NavGraphBuilder.mainGraph(drawerState: DrawerState, viewModel: BookViewModel
             BookListView(drawerState, viewModel, navController)
         }
         composable(MainNavOption.AccountsScreen.name){
-            AccountScreen(drawerState, viewModel, navController)
+            AccountView(drawerState, viewModel, navController, dataStore)
         }
         composable(MainNavOption.AddBookScreen.name){
             AddBookView(drawerState, viewModel, navController)
@@ -205,26 +216,16 @@ fun NavGraphBuilder.mainGraph(drawerState: DrawerState, viewModel: BookViewModel
             AddSessionManuallyView(drawerState, viewModel, sessionViewModel,
                 navController, entry.arguments?.getString("isbn")!!)
         }
+        composable(
+            route = "startReadingSession/{isbn}",
+            arguments = listOf(navArgument("isbn") { type = NavType.StringType })
+        ){
+            entry ->
+            StartReadingSessionView(drawerState, viewModel, sessionViewModel, navController, entry.arguments?.getString("isbn")!!)
+        }
     }
 }
 
-@Composable
-fun FloatingActionScaffoldButton(
-    navController: NavController,
-    route: String,
-    icon: ImageVector,
-    contentDescription: String
-) {
-    FloatingActionButton(
-        onClick = {
-            navController.navigate(route)
-        },
-        modifier = Modifier
-            .padding(16.dp)
 
-    ) {
-        Icon(icon, contentDescription)
-    }
-}
 
 

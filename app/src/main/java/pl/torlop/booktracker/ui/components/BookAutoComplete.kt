@@ -1,4 +1,4 @@
-package pl.torlop.booktracker
+package pl.torlop.booktracker.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

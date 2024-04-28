@@ -5,8 +5,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -36,11 +38,17 @@ fun HomeScreen(drawerState: DrawerState, viewModel: BookViewModel, sessionViewMo
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
+        Text(
+            text = "Daily reading time",
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(16.dp)
+                .align(Alignment.CenterHorizontally)
+        )
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(0.5f)
-                .padding(16.dp)
+                .padding(8.dp)
         ) {
             BarChartComponent(
                 basicData = sessionWeekList.value,
@@ -53,8 +61,9 @@ fun HomeScreen(drawerState: DrawerState, viewModel: BookViewModel, sessionViewMo
 
 }
 
-fun createDataPoints(data: List<SumDurationByDate>, color: Color): List<BarData> {
+fun createDataPoints(data: List<SumDurationByDate>, color: Color): MutableList<BarData> {
     val values = data.map { it.duration / 60 }
+
     return values.mapIndexed { index, value ->
         BarData(
             point = Point(
@@ -65,7 +74,7 @@ fun createDataPoints(data: List<SumDurationByDate>, color: Color): List<BarData>
             label = "${value}h",
             description = "${value}h"
         )
-    }
+    }.toMutableList()
 }
 
 fun fillData(data: List<SumDurationByDate>, startDate: Date, endDate: Date): List<SumDurationByDate> {
