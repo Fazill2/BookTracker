@@ -53,14 +53,14 @@ fun BarChartComponent(basicData: List<SumDurationByDate>, modifier: Modifier = M
 
     val values = data.map { it.duration / 60 }
     var maxValue = values.maxOrNull() ?: 0
-    if (maxValue < 5) maxValue = 5 else maxValue += 1
+    if (maxValue == 0) maxValue = 2 else maxValue += 1
     val yAxisData: AxisData = AxisData.Builder()
-        .steps(maxValue / 2  + 1)
+        .steps(maxValue)
         .backgroundColor(Color.Transparent)
         .labelData {
                 index ->
-            val scale = 2
-            ( index * scale  ).toString() + "h"
+
+            ( index  ).toString() + "h"
         }
         .labelAndAxisLinePadding(15.dp)
         .axisLabelColor(MaterialTheme.colorScheme.tertiary)
