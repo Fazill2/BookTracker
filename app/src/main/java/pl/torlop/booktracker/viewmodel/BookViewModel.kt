@@ -22,32 +22,9 @@ class BookViewModel(private val dao: BookDao) : ViewModel() {
         return dao.selectBookById(isbn)
     }
 
-    fun selectBookByTitle(title: String): Flow<List<Book>> {
-        return dao.selectBookByTitle(title)
-    }
-
-    fun selectBookByAuthor(author: String): Flow<List<Book>> {
-        return dao.selectBookByAuthor(author)
-    }
-
-    fun selectBookByGenre(genre: String): Flow<List<Book>> {
-        return dao.selectBookByGenre(genre)
-    }
 
     fun selectBookByReadingStatus(status: String): Flow<List<Book>> {
         return dao.selectBookByReadingStatus(status)
-    }
-
-    fun selectBookByOwnershipStatus(status: String): Flow<List<Book>> {
-        return dao.selectBookByOwnershipStatus(status)
-    }
-
-    fun filterBooksByTitle(title: String): Flow<List<Book>> {
-        return dao.filterBooksByTitle(title)
-    }
-
-    fun filterBooksByAuthor(author: String): Flow<List<Book>> {
-        return dao.filterBooksByAuthor(author)
     }
 
     fun startReading(book: Book) {
@@ -85,6 +62,12 @@ class BookViewModel(private val dao: BookDao) : ViewModel() {
     fun addBook(book: Book) {
         viewModelScope.launch {
             dao.insertAll(book)
+        }
+    }
+
+    fun upsertAll(books: List<Book>) {
+        viewModelScope.launch {
+            dao.upsertAll(books)
         }
     }
 

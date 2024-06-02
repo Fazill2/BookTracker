@@ -1,9 +1,6 @@
 package pl.torlop.booktracker.dao
 
-import androidx.room.Dao
-import androidx.room.Query
-import androidx.room.Update
-import androidx.room.Upsert
+import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import pl.torlop.booktracker.entity.ReadingSession
 import pl.torlop.booktracker.entity.SumDurationByDate
@@ -54,6 +51,6 @@ interface ReadingSessionDao {
     @Query("SELECT date, SUM(duration) as duration FROM readingsession WHERE date BETWEEN (:startDate) AND (:endDate) GROUP BY date ORDER BY date ASC")
     fun getDailyReadingTimeBetweenDates(startDate: Date, endDate: Date): Flow<List<SumDurationByDate>>
 
-
-
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertAll(sessions: List<ReadingSession>)
 }

@@ -37,6 +37,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.room.Room
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.map
 import pl.torlop.booktracker.navigation.MainNavOption
 import pl.torlop.booktracker.navigation.NavRoutes
@@ -104,6 +105,7 @@ class MainActivity : ComponentActivity() {
                                 settings.remove(TOKEN_ID)
                                 settings.remove(USER_IMAGE_URI)
                             }
+                            FirebaseAuth.getInstance().signOut()
                             drawerState.close()
                         }
                     }

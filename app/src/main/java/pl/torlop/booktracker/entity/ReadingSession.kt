@@ -13,9 +13,7 @@ data class ReadingSession(
     var date: Date,
     var pagesStart : Int,
     var pagesEnd: Int
-){
-
-}
+)
 
 fun getEmptyReadingSession(): ReadingSession {
     return ReadingSession(0, "", 0, Date.from(Instant.now()), 0, 0)

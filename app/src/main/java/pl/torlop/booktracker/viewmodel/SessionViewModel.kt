@@ -68,9 +68,9 @@ class SessionViewModel(private val sessionDao: ReadingSessionDao) : ViewModel(){
         }
     }
 
-    fun insert(session: ReadingSession) {
+    fun upsertAll(sessions: List<ReadingSession>) {
         viewModelScope.launch {
-            sessionDao.insert(session)
+            sessionDao.upsertAll(sessions)
         }
     }
 }

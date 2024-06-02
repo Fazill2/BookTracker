@@ -50,4 +50,7 @@ interface BookDao {
 
     @Update
     suspend fun update(book: Book)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertAll(books: List<Book>)
 }
