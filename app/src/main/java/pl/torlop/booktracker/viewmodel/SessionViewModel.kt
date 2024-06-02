@@ -54,6 +54,14 @@ class SessionViewModel(private val sessionDao: ReadingSessionDao) : ViewModel(){
         sessionDao.deleteSession(id)
     }
 
+    fun getTotalReadingTime(): Flow<Long> {
+        return sessionDao.getTotalReadingTime()
+    }
+
+    fun getTotalPagesRead(): Flow<Int> {
+        return sessionDao.getTotalPagesRead()
+    }
+
     fun addSession(session: ReadingSession) {
         viewModelScope.launch {
             sessionDao.insert(session)

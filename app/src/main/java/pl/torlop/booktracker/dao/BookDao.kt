@@ -39,6 +39,9 @@ interface BookDao {
     @Query("DELETE FROM book WHERE isbn = (:isbn)")
     fun deleteBook(isbn: String)
 
+    @Query("SELECT COUNT(*) FROM book WHERE readingStatus = 'FINISHED'")
+    fun getNumberOfReadBooks(): Flow<Int>
+
     @Delete
     fun delete(book: Book)
 

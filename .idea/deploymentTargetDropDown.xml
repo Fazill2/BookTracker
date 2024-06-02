@@ -8,8 +8,24 @@
       <entry key="BookListItemPreview">
         <State />
       </entry>
-      <entry key="app">
+      <entry key="IntegerInputFieldPreview">
         <State />
+      </entry>
+      <entry key="app">
+        <State>
+          <runningDeviceTargetSelectedWithDropDown>
+            <Target>
+              <type value="RUNNING_DEVICE_TARGET" />
+              <deviceKey>
+                <Key>
+                  <type value="SERIAL_NUMBER" />
+                  <value value="adb-RFCT427ZDRZ-wMWDlv._adb-tls-connect._tcp" />
+                </Key>
+              </deviceKey>
+            </Target>
+          </runningDeviceTargetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2024-05-31T12:24:48.431300200Z" />
+        </State>
       </entry>
     </value>
   </component>

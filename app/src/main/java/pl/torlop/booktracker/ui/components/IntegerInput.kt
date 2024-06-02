@@ -31,7 +31,7 @@ fun IntegerInputField(
     enabled: Boolean = true
 ) {
     var textValue by remember { mutableStateOf(value.toString()) }
-
+    textValue = value.toString()
     TextField(
         value = textValue,
         onValueChange = { newValue ->

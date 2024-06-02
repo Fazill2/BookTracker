@@ -52,6 +52,8 @@ import pl.torlop.booktracker.utils.Utils.Companion.USER_NAME
 import pl.torlop.booktracker.viewmodel.BookViewModel
 import pl.torlop.booktracker.viewmodel.SessionViewModel
 
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+
 class MainActivity : ComponentActivity() {
     private val db by lazy {
         Room.databaseBuilder(
@@ -78,10 +80,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     )
-    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
-
-
-
+    
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -224,7 +223,7 @@ fun NavGraphBuilder.mainGraph(drawerState: DrawerState, viewModel: BookViewModel
             BookListView(drawerState, viewModel, navController)
         }
         composable(MainNavOption.AccountsScreen.name){
-            AccountView(drawerState, viewModel, navController, dataStore)
+            AccountView(drawerState, viewModel, sessionViewModel, navController, dataStore)
         }
         composable(MainNavOption.AddBookScreen.name){
             AddBookView(drawerState, viewModel, navController)
@@ -266,7 +265,4 @@ fun NavGraphBuilder.mainGraph(drawerState: DrawerState, viewModel: BookViewModel
         }
     }
 }
-
-
-
 

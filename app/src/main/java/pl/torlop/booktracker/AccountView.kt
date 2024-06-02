@@ -40,21 +40,22 @@ import pl.torlop.booktracker.utils.Utils.Companion.TOKEN_ID
 import pl.torlop.booktracker.utils.Utils.Companion.USER_IMAGE_URI
 import pl.torlop.booktracker.utils.Utils.Companion.USER_NAME
 import pl.torlop.booktracker.viewmodel.BookViewModel
+import pl.torlop.booktracker.viewmodel.SessionViewModel
 
 import java.security.MessageDigest
 import java.util.*
 
 @Composable
-fun AccountView(drawerState: DrawerState, viewModel: BookViewModel, navController: NavController, dataStore: DataStore<Preferences>) {
+fun AccountView(drawerState: DrawerState, viewModel: BookViewModel, sessionViewModel: SessionViewModel, navController: NavController, dataStore: DataStore<Preferences>) {
     val userName: State<String?> = dataStore.data.map {
         it[USER_NAME]
     }.collectAsState(initial = null)
 
-    AccountComponent(drawerState, navController, dataStore, userName.value)
+    AccountComponent(drawerState, navController, viewModel, sessionViewModel, dataStore, userName.value)
 }
 
 @Composable
-fun AccountComponent(drawerState: DrawerState, navController: NavController, dataStore: DataStore<Preferences>, userName: String?) {
+fun AccountComponent(drawerState: DrawerState, navController: NavController, viewModel: BookViewModel, sessionViewModel: SessionViewModel, dataStore: DataStore<Preferences>, userName: String?) {
 
 
     if (userName == null) {
@@ -67,11 +68,8 @@ fun AccountComponent(drawerState: DrawerState, navController: NavController, dat
         }
     } else {
         LoggedInView(dataStore,
-            onLogoutButtonClick = {
-                navController.navigate(MainNavOption.HomeScreen.name) {
-                    launchSingleTop = true
-                }
-            }
+            viewModel = viewModel,
+            sessionViewModel = sessionViewModel
         )
     }
 }
@@ -146,15 +144,22 @@ fun LoginButtons(dataStore: DataStore<Preferences>,onFacebookSignInButtonClick: 
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Text(
+            text = "Sign in to see lifetime stats",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.padding(8.dp)
+        )
         GoogleSignInButton(dataStore)
         Button(onClick = { onFacebookSignInButtonClick() }) {
             Text("Sign in with Facebook")
         }
+
     }
 }
 
 @Composable
-fun LoggedInView(dataStore: DataStore<Preferences>, onLogoutButtonClick: () -> Unit = {}) {
+fun LoggedInView(dataStore: DataStore<Preferences>, viewModel: BookViewModel, sessionViewModel: SessionViewModel) {
     val context: Context = LocalContext.current
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
     val userName: State<String> = dataStore.data.map {
@@ -164,6 +169,10 @@ fun LoggedInView(dataStore: DataStore<Preferences>, onLogoutButtonClick: () -> U
     val userImageUri: State<String> = dataStore.data.map {
         it[USER_IMAGE_URI] ?: ""
     }.collectAsState(initial = "")
+
+    val booksRead = viewModel.getNumberOfReadBooks().collectAsState(initial = 0)
+    val totalReadingTime  = sessionViewModel.getTotalReadingTime().collectAsState(initial = 0)
+    val totalPagesRead = sessionViewModel.getTotalPagesRead().collectAsState(initial = 0)
 
 
     Box(
@@ -193,9 +202,34 @@ fun LoggedInView(dataStore: DataStore<Preferences>, onLogoutButtonClick: () -> U
                 style = MaterialTheme.typography.headlineLarge
 
             )
-
+            Spacer(
+                modifier = Modifier.height(32.dp)
+            )
+            StatsComponent(
+                listOf(
+                    Pair("Books read:", booksRead.value.toString() + " books"),
+                    Pair("Total reading time:", totalReadingTime.value.toString() + " min"),
+                    Pair("Total pages read:", totalPagesRead.value.toString() + " pages")
+                )
+            )
         }
     }
+}
 
-
+@Composable
+fun StatsComponent(stats: List<Pair<String, String>>){
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        stats.forEach {
+            Row(
+                modifier = Modifier.fillMaxWidth(0.7f),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = it.first)
+                Text(text = it.second)
+            }
+        }
+    }
 }

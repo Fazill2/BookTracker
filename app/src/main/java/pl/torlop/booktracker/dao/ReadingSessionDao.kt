@@ -44,6 +44,12 @@ interface ReadingSessionDao {
     @Query("SELECT date, SUM(duration) as duration FROM readingsession GROUP BY date ORDER BY date ASC")
     fun getDailyReadingTime(): Flow<List<SumDurationByDate>>
 
+    @Query("SELECT SUM(duration) FROM readingsession")
+    fun getTotalReadingTime(): Flow<Long>
+
+    @Query("SELECT SUM(pagesEnd - pagesStart) FROM readingsession")
+    fun getTotalPagesRead(): Flow<Int>
+
     // get daily reading time in specific date range
     @Query("SELECT date, SUM(duration) as duration FROM readingsession WHERE date BETWEEN (:startDate) AND (:endDate) GROUP BY date ORDER BY date ASC")
     fun getDailyReadingTimeBetweenDates(startDate: Date, endDate: Date): Flow<List<SumDurationByDate>>

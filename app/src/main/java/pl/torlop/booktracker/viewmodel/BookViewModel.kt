@@ -72,6 +72,10 @@ class BookViewModel(private val dao: BookDao) : ViewModel() {
         }
     }
 
+    fun getNumberOfReadBooks(): Flow<Int> {
+        return dao.getNumberOfReadBooks()
+    }
+
     fun update(book: Book) {
         viewModelScope.launch {
             dao.update(book)
