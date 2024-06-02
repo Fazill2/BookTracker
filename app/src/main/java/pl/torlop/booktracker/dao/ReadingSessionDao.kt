@@ -35,6 +35,9 @@ interface ReadingSessionDao {
     @Query("DELETE FROM readingsession WHERE id = (:id)")
     fun deleteSession(id: Int)
 
+    @Delete
+    suspend fun deleteSession(session: ReadingSession)
+
     @Upsert
     suspend fun insert(session: ReadingSession)
 

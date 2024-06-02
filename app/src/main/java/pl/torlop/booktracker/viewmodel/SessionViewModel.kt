@@ -54,6 +54,12 @@ class SessionViewModel(private val sessionDao: ReadingSessionDao) : ViewModel(){
         sessionDao.deleteSession(id)
     }
 
+    fun deleteSession(session: ReadingSession) {
+        viewModelScope.launch {
+            sessionDao.deleteSession(session)
+        }
+    }
+
     fun getTotalReadingTime(): Flow<Long> {
         return sessionDao.getTotalReadingTime()
     }

@@ -24,7 +24,8 @@ import pl.torlop.booktracker.entity.ReadingStatus
 
 
 @Composable
-fun BookDetailsComponent(book: State<Book>, readingSessions: State<List<ReadingSession>>, onClickStartReading: () -> Unit, onClickFinishReading: () -> Unit){
+fun BookDetailsComponent(book: State<Book>, readingSessions: State<List<ReadingSession>>, onClickStartReading: () -> Unit,
+                         deleteSession: (ReadingSession) -> Unit){
     Column(
         modifier = Modifier
             .verticalScroll(rememberScrollState())
@@ -59,7 +60,7 @@ fun BookDetailsComponent(book: State<Book>, readingSessions: State<List<ReadingS
         Text(book.value.description, style = MaterialTheme.typography.bodyMedium)
         if (readingSessions.value.isNotEmpty()) {
             Text("Reading sessions", style = MaterialTheme.typography.titleMedium)
-            SessionListComponent(readingSessions.value)
+            SessionListComponent(readingSessions.value, modifier = Modifier, deleteSession = deleteSession)
         }
 
         val label = when (book.value.readingStatus) {

@@ -1,11 +1,13 @@
 package pl.torlop.booktracker.session
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.DrawerState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavOptionsBuilder
@@ -22,6 +24,7 @@ import pl.torlop.booktracker.viewmodel.BookViewModel
 import pl.torlop.booktracker.viewmodel.SessionViewModel
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -34,8 +37,7 @@ fun StartReadingSessionView(drawerState: DrawerState, viewModel: BookViewModel, 
     val currentPages = if (book.value.currentPages != book.value.pages) book.value.currentPages else 1
     val pagesStart = remember { mutableStateOf(currentPages.toString()) }
     val pagesEnd = remember { mutableStateOf(currentPages.toString()) }
-    pagesStart.value = currentPages.toString()
-    pagesEnd.value = currentPages.toString()
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val onReset: () -> Unit = {
         time.longValue = 0L
@@ -51,10 +53,15 @@ fun StartReadingSessionView(drawerState: DrawerState, viewModel: BookViewModel, 
             }
         }
     }
-    val onSave: () -> Unit = {
+    val onSave: () -> Unit = onSave@{
+        if (pagesEnd.value < pagesStart.value) {
+            Toast.makeText(context, "Ending page must be greater than starting page", Toast.LENGTH_SHORT).show()
+            return@onSave
+        }
+        // get current date
         val session = ReadingSession(
             bookIsbn = book.value.isbn,
-            date = Date(),
+            date = Date.from(LocalDate.now().atStartOfDay().toInstant(ZoneOffset.UTC)),
             duration = time.longValue.toInt() / 60,
             pagesStart = pagesStart.value.toIntOrNull() ?: 0,
             pagesEnd = pagesEnd.value.toIntOrNull() ?: 0
@@ -113,14 +120,14 @@ fun StartReadingSessionComponent(
             value = pagesStart.value.toIntOrNull() ?: 1,
             onValueChange = { pagesStart.value = it.toString() },
             minValue = 1,
-            maxValue = pagesEnd.value.toIntOrNull() ?: book.pages,
+            maxValue = book.pages,
             label = "Starting page",
             modifier = Modifier.fillMaxWidth(0.5f)
         )
         IntegerInputField(
             value = pagesEnd.value.toIntOrNull() ?: 1,
             onValueChange = { pagesEnd.value = it.toString() },
-            minValue = pagesStart.value.toIntOrNull() ?: 1,
+            minValue = 1,
             maxValue = book.pages,
             label = "Ending page",
             modifier = Modifier.fillMaxWidth()

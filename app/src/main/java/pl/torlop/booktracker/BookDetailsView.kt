@@ -1,5 +1,6 @@
 package pl.torlop.booktracker
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -17,6 +18,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import pl.torlop.booktracker.entity.Book
+import pl.torlop.booktracker.entity.ReadingSession
 import pl.torlop.booktracker.entity.ReadingStatus
 import pl.torlop.booktracker.entity.getEmptyBook
 import pl.torlop.booktracker.ui.components.BookDetailsComponent
@@ -29,12 +31,16 @@ fun BookDetailsView(drawerState: DrawerState, viewModel: BookViewModel, sessionV
     val book = viewModel.selectBookById(isbn).collectAsState(initial = getEmptyBook())
     val readingStatus = remember { mutableStateOf(book.value.readingStatus) }
     val readingSessions = sessionViewModel.getSessionsByIsbn(isbn).collectAsState(initial = emptyList())
-
-
-//    val onClickStartReading: () -> Unit = { viewModel.startReading(book.value) }
+    val context = LocalContext.current
     val onClickStartReading: () -> Unit = {
         navController.navigate("newSession/${book.value.isbn}")
     }
-    val onClickFinishReading: () -> Unit = { viewModel.finishReading(book.value) }
-    BookDetailsComponent(book, readingSessions, onClickStartReading, onClickFinishReading)
+
+    val deleteSession = { session: ReadingSession ->
+
+
+        sessionViewModel.deleteSession(session)
+        Toast.makeText(context, "Session deleted", Toast.LENGTH_SHORT).show()
+    }
+    BookDetailsComponent(book, readingSessions, onClickStartReading, deleteSession)
 }
