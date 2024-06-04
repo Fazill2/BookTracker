@@ -170,10 +170,6 @@ fun LoginButtons(dataStore: DataStore<Preferences>,onFacebookSignInButtonClick: 
             modifier = Modifier.padding(8.dp)
         )
         GoogleSignInButton(dataStore)
-        Button(onClick = { onFacebookSignInButtonClick() }) {
-            Text("Sign in with Facebook")
-        }
-
     }
 }
 

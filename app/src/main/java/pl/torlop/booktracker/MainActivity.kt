@@ -16,6 +16,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Logout
@@ -37,6 +38,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.room.Room
+import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
+import coil.decode.SvgDecoder
+import coil.request.ImageRequest
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.map
 import pl.torlop.booktracker.navigation.MainNavOption
@@ -167,7 +173,23 @@ class MainActivity : ComponentActivity() {
                         Scaffold(
                             topBar = {
                                 TopAppBar(
-                                    title = { Text("Book Tracker") },
+                                    title = {
+                                        val deviceWidth = LocalContext.current.resources.displayMetrics.widthPixels
+                                        val deviceHeight = LocalContext.current.resources.displayMetrics.heightPixels
+                                        val iconWidth = deviceWidth / 30
+                                        val iconHeight = deviceHeight / 30
+//                                        Row(
+//                                            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+//                                        ) {
+//                                            R.drawable.ic_launcher_foreground
+//                                            AsyncImage(
+//                                                model = R.drawable.ic_launcher_foreground,
+//                                                contentDescription = null,
+//                                                modifier = Modifier.size(iconWidth.dp, iconHeight.dp)
+//                                            )
+                                            Text("Book Tracker")
+//                                        }
+                                            },
                                     navigationIcon = {
                                         IconButton(onClick = {
                                             scope.launch {

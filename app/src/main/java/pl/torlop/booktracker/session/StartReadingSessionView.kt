@@ -1,16 +1,19 @@
 package pl.torlop.booktracker.session
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DrawerState
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import androidx.navigation.NavOptionsBuilder
+import coil.compose.AsyncImage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import pl.torlop.booktracker.entity.Book
@@ -23,6 +26,7 @@ import pl.torlop.booktracker.utils.Utils.Companion.updateBookAfterSession
 import pl.torlop.booktracker.viewmodel.BookViewModel
 import pl.torlop.booktracker.viewmodel.SessionViewModel
 import java.time.LocalDate
+import pl.torlop.booktracker.R
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -104,33 +108,44 @@ fun StartReadingSessionComponent(
     currentPages: Int
 ) {
 
+    val deviceWidth = LocalContext.current.resources.displayMetrics.widthPixels
+    val deviceHeight = LocalContext.current.resources.displayMetrics.heightPixels
+    val iconWidth = deviceWidth / 5
+    val iconHeight = deviceHeight / 5
 
-    StopwatchComponent(
-        time = time,
-        isRunning = isRunning,
-        onStartStop = onStartStop,
-        onReset = onReset,
-        onSave = onSave
-    )
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    Column (
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        IntegerInputField(
-            value = pagesStart.value.toIntOrNull() ?: 1,
-            onValueChange = { pagesStart.value = it.toString() },
-            minValue = 1,
-            maxValue = book.pages,
-            label = "Starting page",
-            modifier = Modifier.fillMaxWidth(0.5f)
-        )
-        IntegerInputField(
-            value = pagesEnd.value.toIntOrNull() ?: 1,
-            onValueChange = { pagesEnd.value = it.toString() },
-            minValue = 1,
-            maxValue = book.pages,
-            label = "Ending page",
-            modifier = Modifier.fillMaxWidth()
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            IntegerInputField(
+                value = pagesStart.value.toIntOrNull() ?: 1,
+                onValueChange = { pagesStart.value = it.toString() },
+                minValue = 1,
+                maxValue = book.pages,
+                label = "Starting page",
+                modifier = Modifier.fillMaxWidth(0.5f)
+            )
+            IntegerInputField(
+                value = pagesEnd.value.toIntOrNull() ?: 1,
+                onValueChange = { pagesEnd.value = it.toString() },
+                minValue = 1,
+                maxValue = book.pages,
+                label = "Ending page",
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        StopwatchComponent(
+            time = time,
+            isRunning = isRunning,
+            onStartStop = onStartStop,
+            onReset = onReset,
+            onSave = onSave,
+            iconWidth = iconWidth,
+            iconHeight = iconHeight
         )
     }
 }
