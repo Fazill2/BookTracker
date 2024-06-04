@@ -174,21 +174,7 @@ class MainActivity : ComponentActivity() {
                             topBar = {
                                 TopAppBar(
                                     title = {
-                                        val deviceWidth = LocalContext.current.resources.displayMetrics.widthPixels
-                                        val deviceHeight = LocalContext.current.resources.displayMetrics.heightPixels
-                                        val iconWidth = deviceWidth / 30
-                                        val iconHeight = deviceHeight / 30
-//                                        Row(
-//                                            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
-//                                        ) {
-//                                            R.drawable.ic_launcher_foreground
-//                                            AsyncImage(
-//                                                model = R.drawable.ic_launcher_foreground,
-//                                                contentDescription = null,
-//                                                modifier = Modifier.size(iconWidth.dp, iconHeight.dp)
-//                                            )
                                             Text("Book Tracker")
-//                                        }
                                             },
                                     navigationIcon = {
                                         IconButton(onClick = {
